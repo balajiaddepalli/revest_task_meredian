@@ -1,0 +1,41 @@
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Full Name",
+      "fieldType": "TEXT",
+      "minLength": 1,
+      "maxLength": 100,
+      "defaultValue": "",
+      "required": true
+    },
+    {
+      "id": 2,
+      "name": "Email",
+      "fieldType": "TEXT",
+      "inputType": "email",
+      "minLength": 1,
+      "maxLength": 100,
+      "defaultValue": "",
+      "required": true
+    },
+    {
+      "id": 3,
+      "name": "Password",
+      "fieldType": "TEXT",
+      "inputType": "password",
+      "minLength": 6,
+      "maxLength": 100,
+      "defaultValue": "",
+      "required": true
+    },
+    {
+      "id": 6,
+      "name": "Gender",
+      "fieldType": "LIST",
+      "defaultValue": "Male",
+      "required": true,
+      "listOfValues1": ["Male", "Female", "Others"]
+    }
+  ]
+}

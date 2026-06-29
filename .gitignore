@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+.vite/
+.next/
+build/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Test artifacts
+test-results/
+e2e/test-results/
+e2e/playwright-report/
+coverage/
+
+# Prisma
+backend/**/node_modules/.prisma/
+
+# Docker
+postgres_data/
+
+# Temp
+tmp/
+temp/

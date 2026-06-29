@@ -1,0 +1,147 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: revest-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: revest
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build: ./backend/api-gateway
+    container_name: revest-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=revest-super-secret-key-2026
+      - JWT_EXPIRATION=24h
+      - USER_SERVICE_HOST=user-service
+      - USER_SERVICE_PORT=3003
+      - PRODUCT_SERVICE_HOST=product-service
+      - PRODUCT_SERVICE_PORT=3001
+      - ORDER_SERVICE_HOST=order-service
+      - ORDER_SERVICE_PORT=3002
+      - CART_SERVICE_HOST=cart-service
+      - CART_SERVICE_PORT=3004
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  product-service:
+    build: ./backend/product-service
+    container_name: revest-product-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/revest?schema=products
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').connect(3001,'127.0.0.1').on('error',()=>process.exit(1)).on('connect',()=>process.exit(0))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  order-service:
+    build: ./backend/order-service
+    container_name: revest-order-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - PRODUCT_SERVICE_HOST=product-service
+      - PRODUCT_SERVICE_PORT=3001
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/revest?schema=orders
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').connect(3002,'127.0.0.1').on('error',()=>process.exit(1)).on('connect',()=>process.exit(0))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  user-service:
+    build: ./backend/user-service
+    container_name: revest-user-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - JWT_SECRET=revest-super-secret-key-2026
+      - JWT_EXPIRATION=24h
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/revest?schema=users
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').connect(3003,'127.0.0.1').on('error',()=>process.exit(1)).on('connect',()=>process.exit(0))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  cart-service:
+    build: ./backend/cart-service
+    container_name: revest-cart-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - PRODUCT_SERVICE_HOST=product-service
+      - PRODUCT_SERVICE_PORT=3001
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/revest?schema=cart
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('net').connect(3004,'127.0.0.1').on('error',()=>process.exit(1)).on('connect',()=>process.exit(0))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    build: ./frontend
+    container_name: revest-frontend
+    ports:
+      - "3005:3005"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+
+  admin-frontend:
+    build: ./admin-frontend
+    container_name: revest-admin-frontend
+    ports:
+      - "3006:3006"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

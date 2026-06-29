@@ -1,0 +1,21 @@
+{
+  "name": "revest-assignment",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postgres:up": "docker compose up postgres -d",
+    "postgres:down": "docker compose down",
+    "backend:gateway": "cd backend/api-gateway && npm run start:dev",
+    "backend:product": "cd backend/product-service && npm run start:dev",
+    "backend:order": "cd backend/order-service && npm run start:dev",
+    "backend:user": "cd backend/user-service && npm run start:dev",
+    "backend:cart": "cd backend/cart-service && npm run start:dev",
+    "backend:setup": "python scripts/setup.py",
+    "frontend:dev": "cd frontend && npm run dev",
+    "admin:dev": "cd admin-frontend && npm run dev",
+    "e2e:test": "cd e2e && npx playwright test",
+    "e2e:customer": "cd e2e && npx playwright test --grep-invert admin",
+    "e2e:admin": "cd e2e && npx playwright test --project=admin-chromium",
+    "e2e:live": "cd e2e && npx playwright test tests/live-api-smoke.spec.ts"
+  }
+}
