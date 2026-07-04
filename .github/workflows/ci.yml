@@ -21,13 +21,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
-          cache-dependency-path: ${{ matrix.service }}/package-lock.json
+          cache-dependency-path: ${{ matrix.service }}/package.json
       - name: Install and test
         working-directory: ${{ matrix.service }}
         run: |
-          npm ci
+          npm install --package-lock=false
           npm test --if-present
 
   e2e:
@@ -36,12 +36,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
       - name: Install frontend deps
         run: |
-          cd frontend && npm ci
-          cd ../admin-frontend && npm ci
-          cd ../e2e && npm ci
+          cd frontend && npm install --package-lock=false
+          cd ../admin-frontend && npm install --package-lock=false
+          cd ../e2e && npm install --package-lock=false
       - name: Install Playwright browsers
         run: cd e2e && npx playwright install chromium
       - name: Run Playwright (mocked suites)
@@ -54,8 +54,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
       - name: Build customer frontend
-        run: cd frontend && npm ci && npm run build
+        run: cd frontend && npm install --package-lock=false && npm run build
       - name: Build admin frontend
-        run: cd admin-frontend && npm ci && npm run build
+        run: cd admin-frontend && npm install --package-lock=false && npm run build
