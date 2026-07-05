@@ -143,7 +143,7 @@ export function DashboardLayout() {
         </Drawer>
       )}
 
-      <Box component="main" sx={{ flexGrow: 1, width: '100%', ml: isMobile ? 0 : `${drawerWidth}px` }}>
+      <Box component="main" sx={{ flexGrow: 1, width: "100%" }}>
         <Toolbar />
         <Box sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
           <ErrorBoundary><Outlet /></ErrorBoundary>
