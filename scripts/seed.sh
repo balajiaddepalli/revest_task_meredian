@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-# Seed script — populates the database with demo categories and products
+#!/bin/sh
 set -e
 
 API="${API_URL:-http://localhost:3000/api}"
@@ -10,19 +9,17 @@ echo "🌱 Seeding Meridian demo data..."
 echo "   API: $API"
 echo ""
 
-# 1. Register admin user (ignore error if already exists)
 echo "📝 Registering admin user..."
 curl -s -X POST "$API/auth/register" \
   -H "Content-Type: application/json" \
   -d "{\"fullName\":\"Admin User\",\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\",\"gender\":\"Male\"}" \
   -o /dev/null -w "   → HTTP %{http_code}\n" 2>/dev/null || true
 
-# 2. Login
 echo "🔑 Logging in..."
 TOKEN=$(curl -s -X POST "$API/auth/login" \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" | \
-  python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))" 2>/dev/null)
+  grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
 
 if [ -z "$TOKEN" ]; then
   echo "❌ Login failed. Check server is running on $API"
@@ -32,42 +29,31 @@ echo "   ✅ Token obtained"
 
 AUTH="Authorization: Bearer $TOKEN"
 
-# 3. Create categories
 echo ""
 echo "📂 Creating categories..."
-CATEGORIES=(
-  "Electronics"
-  "Clothing"
-  "Home & Garden"
-  "Books"
-  "Sports & Outdoors"
-)
-
-declare -A CAT_IDS
-for cat in "${CATEGORIES[@]}"; do
-  RESULT=$(curl -s -X POST "$API/categories" \
+for cat in Electronics Clothing "Home & Garden" Books "Sports & Outdoors"; do
+  RESPONSE=$(curl -s -X POST "$API/categories" \
     -H "Content-Type: application/json" \
     -H "$AUTH" \
     -d "{\"name\":\"$cat\"}")
-  ID=$(echo "$RESULT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('id',''))" 2>/dev/null)
+  ID=$(echo "$RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
   if [ -n "$ID" ]; then
-    CAT_IDS["$cat"]="$ID"
+    echo "$ID" > "/tmp/cat_$(echo "$cat" | tr ' &' '__')"
     echo "   ✅ $cat  →  $ID"
   else
     echo "   ⚠️  $cat  (may already exist)"
   fi
 done
 
-# 4. Create products
 echo ""
 echo "📦 Creating products..."
 
 create_product() {
-  local name="$1" sku="$2" price="$3" stock="$4" cat_name="$5" desc="$6" img="$7"
-  local cat_id="${CAT_IDS[$cat_name]:-}"
-  
-  local payload="{\"name\":\"$name\",\"sku\":\"$sku\",\"price\":$price,\"stockQuantity\":$stock,\"description\":\"$desc\""
-  if [ -n "$cat_id" ]; then
+  name="$1" sku="$2" price="$3" stock="$4" cat_name="$5" desc="$6" img="$7"
+  cat_id=$(cat "/tmp/cat_$(echo "$cat_name" | tr ' &' '__')" 2>/dev/null || echo "")
+
+  payload="{\"name\":\"$name\",\"sku\":\"$sku\",\"price\":$price,\"stockQuantity\":$stock,\"description\":\"$desc\""
+  if [ -n "$cat_id" ]; then 
     payload="$payload,\"categoryId\":\"$cat_id\""
   fi
   if [ -n "$img" ]; then
@@ -82,7 +68,6 @@ create_product() {
     -o /dev/null -w "   → $name  (HTTP %{http_code})\n"
 }
 
-# Product data: name, sku, price, stock, category, description, image
 create_product \
   "Wireless Noise-Cancelling Headphones" \
   "ELEC-001" 249.99 45 "Electronics" \

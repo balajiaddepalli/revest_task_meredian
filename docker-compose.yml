@@ -143,5 +143,18 @@ services:
       api-gateway:
         condition: service_healthy
 
+  seed:
+    image: curlimages/curl:latest
+    container_name: revest-seed
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    environment:
+      - API_URL=http://api-gateway:3000/api
+    volumes:
+      - ./scripts/seed.sh:/seed.sh
+    command: sh /seed.sh
+    restart: "no"
+
 volumes:
   postgres_data:

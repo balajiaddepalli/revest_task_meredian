@@ -69,61 +69,42 @@ The **customer site** (`frontend/`) and **admin portal** (`admin-frontend/`) are
 
 ## Quick Start
 
-### 1. Start PostgreSQL
+### 1. Start Everything (one command)
 
 ```bash
-docker compose up postgres -d
+docker compose up --build -d
 ```
 
-### 2. Start Backend Services (one terminal each)
+This builds and starts all 8 containers:
+- PostgreSQL → Backend microservices → API Gateway → Frontends → Auto-seed
+
+Postgres health is verified before services start. The API gateway health is verified before the frontends and seed run. Demo data is seeded automatically.
+
+**Wait 60–90 seconds** for all health checks to pass, then access:
+
+| Service | URL |
+|---------|-----|
+| Customer frontend | [http://localhost:3005](http://localhost:3005) |
+| Admin portal | [http://localhost:3006](http://localhost:3006) |
+| Swagger API docs | [http://localhost:3000/api/docs](http://localhost:3000/api/docs) |
+
+### 2. Login
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@meridian.com` | `admin123` |
+
+### 3. Stop
 
 ```bash
-# User Service (port 3003)
-cd backend/user-service && npm install && npx prisma db push && npm run start:dev
-
-# Product Service (port 3001)
-cd backend/product-service && npm install && npx prisma db push && npm run start:dev
-
-# Order Service (port 3002)
-cd backend/order-service && npm install && npx prisma db push && npm run start:dev
-
-# Cart Service (port 3004)
-cd backend/cart-service && npm install && npx prisma db push && npm run start:dev
-
-# API Gateway (port 3000)
-cd backend/api-gateway && npm install && npm run start:dev
+docker compose down
 ```
 
-### 3. Install Root Dependencies
-
+To delete all data (reset database):
 ```bash
-npm install
+docker compose down -v
 ```
 
-Installs `tsx`, `typescript`, and `@types/node` needed for the setup script.
-
-### 4. Seed Demo Data
-
-```bash
-npm run backend:setup
-```
-
-This applies Prisma migrations and seeds demo data.
-Admin: `admin@meridian.com` / `admin123`
-
-### 5. Start Frontends (one terminal each)
-
-```bash
-cd frontend && npm install && npm run dev       # Customer app :3005
-cd admin-frontend && npm install && npm run dev # Admin portal  :3006
-```
-
-
-## Docker (Full Stack)
-
-```bash
-docker compose up --build
-```
 
 ## API Endpoints
 
