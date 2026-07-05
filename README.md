@@ -58,14 +58,11 @@ The **customer site** (`frontend/`) and **admin portal** (`admin-frontend/`) are
 | React Hook Form | Form management                 |
 | Zod             | Schema validation               |
 | JWT + RBAC      | Authentication & authorization  |
-| Playwright      | E2E testing                     |
 | Docker          | Containerization                |
 
 ## Prerequisites
 
-- Node.js 20+
-- Docker & Docker Compose (for PostgreSQL)
-- npm
+- Docker & Docker Compose
 
 ## Quick Start
 
