@@ -9,23 +9,29 @@ echo "🌱 Seeding Meridian demo data..."
 echo "   API: $API"
 echo ""
 
-echo "📝 Registering admin user..."
-curl -s -X POST "$API/auth/register" \
-  -H "Content-Type: application/json" \
-  -d "{\"fullName\":\"Admin User\",\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\",\"gender\":\"Male\"}" \
-  -o /dev/null -w "   → HTTP %{http_code}\n" 2>/dev/null || true
-
-echo "🔑 Logging in..."
-TOKEN=$(curl -s -X POST "$API/auth/login" \
-  -H "Content-Type: application/json" \
-  -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" | \
-  grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+echo "🔑 Authenticating (retrying until services are ready)..."
+TOKEN=""
+i=0
+while [ -z "$TOKEN" ] && [ $i -lt 30 ]; do
+  i=$((i + 1))
+  curl -s -X POST "$API/auth/register" \
+    -H "Content-Type: application/json" \
+    -d "{\"fullName\":\"Admin User\",\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\",\"gender\":\"Male\"}" \
+    -o /dev/null 2>/dev/null || true
+  TOKEN=$(curl -s -X POST "$API/auth/login" \
+    -H "Content-Type: application/json" \
+    -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" | \
+    grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
+  if [ -z "$TOKEN" ]; then
+    sleep 2
+  fi
+done
 
 if [ -z "$TOKEN" ]; then
-  echo "❌ Login failed. Check server is running on $API"
+  echo "❌ Login failed after 30 retries. Check that services are running on $API"
   exit 1
 fi
-echo "   ✅ Token obtained"
+echo "   ✅ Token obtained (attempt $i)"
 
 AUTH="Authorization: Bearer $TOKEN"
 
