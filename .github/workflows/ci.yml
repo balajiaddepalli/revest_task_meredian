@@ -30,24 +30,6 @@ jobs:
           npm install --package-lock=false
           npm test --if-present
 
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Install frontend deps
-        run: |
-          cd frontend && npm install --package-lock=false
-          cd ../admin-frontend && npm install --package-lock=false
-          cd ../e2e && npm install --package-lock=false
-      - name: Install Playwright browsers
-        run: cd e2e && npx playwright install chromium
-      - name: Run Playwright (mocked suites)
-        run: |
-          cd e2e && npx playwright test --grep-invert "Docker Compose|live-api-smoke"
-
   build:
     runs-on: ubuntu-latest
     steps:

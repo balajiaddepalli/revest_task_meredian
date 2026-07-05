@@ -71,6 +71,11 @@ async function main(): Promise<void> {
     }
   }
 
+  if (!response?.access_token) {
+    console.error("Failed to login as admin")
+    process.exit(1)
+  }
+
   const token = response.access_token
   console.log("Token obtained")
 
@@ -284,4 +289,7 @@ async function main(): Promise<void> {
   console.log("Admin login: admin@meridian.com / admin123")
 }
 
-await main()
+main().catch((e) => {
+  console.error(e)
+  process.exit(1)
+})

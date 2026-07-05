@@ -94,7 +94,15 @@ cd backend/cart-service && npm install && npx prisma db push && npm run start:de
 cd backend/api-gateway && npm install && npm run start:dev
 ```
 
-### 3. Seed Demo Data
+### 3. Install Root Dependencies
+
+```bash
+npm install
+```
+
+Installs `tsx`, `typescript`, and `@types/node` needed for the setup script.
+
+### 4. Seed Demo Data
 
 ```bash
 npm run backend:setup
@@ -103,18 +111,13 @@ npm run backend:setup
 This applies Prisma migrations and seeds demo data.
 Admin: `admin@meridian.com` / `admin123`
 
-### 4. Start Frontends (one terminal each)
+### 5. Start Frontends (one terminal each)
 
 ```bash
 cd frontend && npm install && npm run dev       # Customer app :3005
 cd admin-frontend && npm install && npm run dev # Admin portal  :3006
 ```
 
-### 5. Run E2E Tests
-
-```bash
-cd e2e && npm install && npx playwright test --grep-invert "Docker Compose|live-api-smoke"
-```
 
 ## Docker (Full Stack)
 

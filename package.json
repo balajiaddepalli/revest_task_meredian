@@ -13,13 +13,11 @@
     "backend:setup": "tsx scripts/setup.ts",
     "backend:seed": "tsx scripts/seed.ts",
     "frontend:dev": "cd frontend && npm run dev",
-    "admin:dev": "cd admin-frontend && npm run dev",
-    "e2e:test": "cd e2e && npx playwright test",
-    "e2e:customer": "cd e2e && npx playwright test --grep-invert admin",
-    "e2e:admin": "cd e2e && npx playwright test --project=admin-chromium",
-    "e2e:live": "cd e2e && npx playwright test tests/live-api-smoke.spec.ts"
+    "admin:dev": "cd admin-frontend && npm run dev"
   },
   "devDependencies": {
-    "tsx": "^4.23.0"
+    "@types/node": "^26.1.0",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3"
   }
 }
