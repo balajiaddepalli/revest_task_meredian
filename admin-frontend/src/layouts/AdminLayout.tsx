@@ -100,7 +100,7 @@ export function AdminLayout() {
           {drawer}
         </Drawer>
       )}
-      <Box component="main" sx={{ flexGrow: 1, p: 3, width: '100%', ml: isMobile ? 0 : `${drawerWidth}px` }}>
+      <Box component="main" sx={{ flexGrow: 1, p: 3, width: '100%' }}>
         <Toolbar />
         <ErrorBoundary><Outlet /></ErrorBoundary>
       </Box>
